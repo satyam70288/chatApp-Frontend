@@ -53,8 +53,9 @@ const AppLayout = () => (WrappedComponent) => {
     }, [newMessagesAlert]);
 
     const handleDeleteChat = (e, chatId, groupChat) => {
-      dispatch(setIsDeleteMenu(true))
-        .dispatch(setSelectedDeleteChat({ chatId, groupChat }));
+      dispatch(setIsDeleteMenu(true)).dispatch(
+        setSelectedDeleteChat({ chatId, groupChat })
+      );
       deleteMenuAnchor.current = e.currentTarget;
     };
 
@@ -89,6 +90,9 @@ const AppLayout = () => (WrappedComponent) => {
 
     useSocketEvents(socket, eventHandlers);
 
+    // Check if chats are undefined and set a fallback
+    const chats = data?.chats || [];
+
     return (
       <>
         <Title />
@@ -108,7 +112,7 @@ const AppLayout = () => (WrappedComponent) => {
             <Drawer open={isMobile} onClose={handleMobileClose}>
               <ChatList
                 w="70vw"
-                chats={data?.chats}
+                chats={chats}
                 chatId={chatId}
                 handleDeleteChat={handleDeleteChat}
                 newMessagesAlert={newMessagesAlert}
@@ -126,7 +130,7 @@ const AppLayout = () => (WrappedComponent) => {
                 height={"100%"}
               >
                 <ChatList
-                  chats={data?.chats}
+                  chats={chats}
                   chatId={chatId}
                   handleDeleteChat={handleDeleteChat}
                   newMessagesAlert={newMessagesAlert}
