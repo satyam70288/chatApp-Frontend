@@ -43,7 +43,12 @@ const AppLayout = () => (WrappedComponent) => {
     const { user } = useSelector((state) => state.auth);
     const { newMessagesAlert } = useSelector((state) => state.chat);
 
-    const { isLoading, data, isError, error, refetch } = useMyChatsQuery();
+    // Prevent API call if chatId is not defined
+    const shouldFetchChats = Boolean(chatId);
+
+    const { isLoading, data, isError, error, refetch } = useMyChatsQuery(undefined, {
+      skip: !shouldFetchChats,
+    });
 
     // Handle errors
     useErrors([{ isError, error }]);
@@ -89,6 +94,15 @@ const AppLayout = () => (WrappedComponent) => {
     };
 
     useSocketEvents(socket, eventHandlers);
+
+    // Prevent rendering if chatId is undefined
+    if (!chatId) {
+      return (
+        <div className="h-screen flex items-center justify-center">
+          <h2>No Chat Selected</h2>
+        </div>
+      );
+    }
 
     // Check if chats are undefined and set a fallback
     const chats = data?.chats || [];
