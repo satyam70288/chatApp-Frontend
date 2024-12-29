@@ -43,8 +43,9 @@ const AppLayout = () => (WrappedComponent) => {
     const { user } = useSelector((state) => state.auth);
     const { newMessagesAlert } = useSelector((state) => state.chat);
 
-    const { isLoading, data, isError, error, refetch } = useMyChatsQuery("");
+    const { isLoading, data, isError, error, refetch } = useMyChatsQuery();
 
+    // Handle errors
     useErrors([{ isError, error }]);
 
     useEffect(() => {
@@ -52,8 +53,8 @@ const AppLayout = () => (WrappedComponent) => {
     }, [newMessagesAlert]);
 
     const handleDeleteChat = (e, chatId, groupChat) => {
-      dispatch(setIsDeleteMenu(true));
-      dispatch(setSelectedDeleteChat({ chatId, groupChat }));
+      dispatch(setIsDeleteMenu(true))
+        .dispatch(setSelectedDeleteChat({ chatId, groupChat }));
       deleteMenuAnchor.current = e.currentTarget;
     };
 
@@ -61,10 +62,9 @@ const AppLayout = () => (WrappedComponent) => {
 
     const newMessageAlertListener = useCallback(
       (data) => {
-        if (data.chatId === chatId) return;
-        dispatch(setNewMessagesAlert(data));
+        data.chatId !== chatId && dispatch(setNewMessagesAlert(data));
       },
-      [chatId]
+      [chatId, dispatch]
     );
 
     const newRequestListener = useCallback(() => {
@@ -99,61 +99,63 @@ const AppLayout = () => (WrappedComponent) => {
           deleteMenuAnchor={deleteMenuAnchor}
         />
 
+        {isError && <div>Error fetching chats. Please try again later.</div>}
+
         {isLoading ? (
           <Skeleton />
         ) : (
-          <Drawer open={isMobile} onClose={handleMobileClose}>
-            <ChatList
-              w="70vw"
-              chats={data?.chats}
-              chatId={chatId}
-              handleDeleteChat={handleDeleteChat}
-              newMessagesAlert={newMessagesAlert}
-              onlineUsers={onlineUsers}
-            />
-          </Drawer>
-        )}
-
-        <Grid container height={"calc(100vh - 4rem)"}>
-          <Grid
-            item
-            sm={4}
-            md={3}
-            sx={{
-              display: { xs: "none", sm: "block" },
-            }}
-            height={"100%"}
-          >
-            {isLoading ? (
-              <Skeleton />
-            ) : (
+          <>
+            <Drawer open={isMobile} onClose={handleMobileClose}>
               <ChatList
+                w="70vw"
                 chats={data?.chats}
                 chatId={chatId}
                 handleDeleteChat={handleDeleteChat}
                 newMessagesAlert={newMessagesAlert}
                 onlineUsers={onlineUsers}
               />
-            )}
-          </Grid>
-          <Grid item xs={12} sm={8} md={5} lg={6} height={"100%"}>
-            <WrappedComponent {...props} chatId={chatId} user={user} />
-          </Grid>
+            </Drawer>
 
-          <Grid
-            item
-            md={4}
-            lg={3}
-            height={"100%"}
-            sx={{
-              display: { xs: "none", md: "block" },
-              padding: "2rem",
-              bgcolor: "rgba(0,0,0,0.85)",
-            }}
-          >
-            <Profile user={user} />
-          </Grid>
-        </Grid>
+            <Grid container height={"calc(100vh - 4rem)"}>
+              {/* Chat List Section */}
+              <Grid
+                item
+                sm={4}
+                md={3}
+                sx={{ display: { xs: "none", sm: "block" } }}
+                height={"100%"}
+              >
+                <ChatList
+                  chats={data?.chats}
+                  chatId={chatId}
+                  handleDeleteChat={handleDeleteChat}
+                  newMessagesAlert={newMessagesAlert}
+                  onlineUsers={onlineUsers}
+                />
+              </Grid>
+
+              {/* Main Content */}
+              <Grid item xs={12} sm={8} md={5} lg={6} height={"100%"}>
+                <WrappedComponent {...props} chatId={chatId} user={user} />
+              </Grid>
+
+              {/* Profile Section */}
+              <Grid
+                item
+                md={4}
+                lg={3}
+                height={"100%"}
+                sx={{
+                  display: { xs: "none", md: "block" },
+                  padding: "2rem",
+                  bgcolor: "rgba(0,0,0,0.85)",
+                }}
+              >
+                <Profile user={user} />
+              </Grid>
+            </Grid>
+          </>
+        )}
       </>
     );
   };
