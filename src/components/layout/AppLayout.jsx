@@ -95,14 +95,14 @@ const AppLayout = () => (WrappedComponent) => {
 
     useSocketEvents(socket, eventHandlers);
 
-    // Prevent rendering if chatId is undefined
-    if (!chatId) {
-      return (
-        <div className="h-screen flex items-center justify-center">
-          <h2>No Chat Selected</h2>
-        </div>
-      );
-    }
+    // // Prevent rendering if chatId is undefined
+    // if (!chatId) {
+    //   return (
+    //     <div className="h-screen flex items-center justify-center">
+    //       <h2>No Chat Selected</h2>
+    //     </div>
+    //   );
+    // }
 
     // Check if chats are undefined and set a fallback
     const chats = data?.chats || [];
